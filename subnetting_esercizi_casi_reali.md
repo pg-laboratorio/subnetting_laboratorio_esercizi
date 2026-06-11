@@ -260,43 +260,44 @@ L'ultimo ottetto della maschera è `240` (`11110000` in binario). Calcoliamo la 
 
 # Livello Avanzato
 
-## Esercizio 7 - Progettazione rete aziendale (VLSM)
+## Esercizio 7 — Collegamento Point-to-Point tra Router
 
-Rete principale: `192.168.100.0/24`
+La tua azienda ha appena aperto una nuova sede. Devi collegare in modo diretto ed esclusivo il router della sede principale (**Router-A**) al router della nuova filiale (**Router-B**) tramite un link dedicato in fibra. 
 
-| Reparto | Host richiesti |
-| :--- | :--- |
-| **Produzione** | 80 |
-| **Amministrazione** | 50 |
-| **IT** | 20 |
+L'ISP ti ha assegnato il blocco di rete `10.255.255.0/24` da utilizzare per i collegamenti dell'infrastruttura. L'obiettivo è sprecare il minor numero possibile di indirizzi IP per questo singolo collegamento tra i due router.
 
 ### Domande
 
-1. Assegna le subnet mask più adeguate usando il VLSM.
-2. Determina Network e Broadcast per ogni reparto.
+1. Quale subnet mask (in notazione CIDR e decimale puntato) rappresenta la "scelta perfetta" per un collegamento punto-punto?
+2. Quanti host utilizzabili fornisce esattamente questa maschera?
+3. Utilizzando la primissima sottorete disponibile partendo da `10.255.255.0`, quali saranno l'indirizzo di rete, gli IP da configurare sulle interfacce dei due router e l'indirizzo di broadcast?
+4. Qual è l'indirizzo di rete della *seconda* sottorete utile se dovessi collegare in futuro un **Router-C**?
 
 <details>
-<summary>Suggerimento</summary>
-Nel VLSM devi <strong>sempre</strong> ordinare i reparti dal fabbisogno più grande a quello più piccolo prima di assegnare le reti.
+<summary>Suggerimento 1</summary>
+Per collegare due router tra loro ti servono esattamente 2 indirizzi IP validi. Quale potenza di 2, sottratta di 2 (Rete e Broadcast), ti dà come risultato esattamente 2?
+</details>
+
+<details>
+<summary>Suggerimento 2</summary>
+Calcola a ritroso: se ti servono solo 2 bit per la parte host, quanti bit ti rimangono per la parte di rete su un totale di 32?
 </details>
 
 <details>
 <summary>Soluzione</summary>
 
-1. **Produzione (80 host richiesti)**
-* Subnet ideale: `/25` (offre fino a 126 host).
-* **Network:** `192.168.100.0/25`
-* **Broadcast:** `192.168.100.127`
+1. **Subnet Mask ideale:** `/30` (in decimale puntato corrisponde a `255.255.255.252`).
+2. **Host utilizzabili:** Lasciando 2 bit per gli host (`32 - 30 = 2`), la formula è `2^2 - 2 = 2` host. Lo spazio esatto e perfetto per due interfacce router, senza sprecare nessun indirizzo extra!
+3. **Parametri della prima sottorete (Link Router-A <-> Router-B):**
+   * **Network:** `10.255.255.0`
+   * **IP Router-A:** `10.255.255.1`
+   * **IP Router-B:** `10.255.255.2`
+   * **Broadcast:** `10.255.255.3`
+4. **Seconda sottorete (Link futuri):**
+   * Il *Magic Number* (salto) è `256 - 252 = 4`. Le reti viaggiano di 4 in 4.
+   * La rete successiva disponibile inizierà quindi da **`10.255.255.4/30`** (con IP validi `.5` e `.6`, e broadcast `.7`).
 
-2. **Amministrazione (50 host richiesti)**
-* Subnet ideale: `/26` (offre fino a 62 host).
-* **Network:** `192.168.100.128/26`
-* **Broadcast:** `192.168.100.191`
-
-3. **IT (20 host richiesti)**
-* Subnet ideale: `/27` (offre fino a 30 host).
-* **Network:** `192.168.100.192/27`
-* **Broadcast:** `192.168.100.223`
+*Nota tecnica:* Sebbene oggi i router moderni supportino anche le maschere `/31` (RFC 3021) appositamente per i link punto-punto (eliminando rete e broadcast), la `/30` rimane lo standard didattico e operativo più richiesto e universale.
 </details>
 
 ---
@@ -343,8 +344,6 @@ La subnet mask `/27` corrisponde a `255.255.255.224` (ultimo ottetto: `11100000`
 
 ---
 
-# Challenge
-
 ## Esercizio 9 - Progettazione rete scolastica complessa
 
 Sei il tecnico incaricato di progettare la rete per un istituto.
@@ -365,7 +364,7 @@ Rete disponibile: `192.168.0.0/23` (che include lo spazio da `192.168.0.0` a `19
 
 <details>
 <summary>Suggerimento</summary>
-Ordina per dimensione decrescente. Ricorda che la rete assegnata è una <code>/23</code>, il che significa che hai a disposizione ben due blocchi di classe C interi (la <code>0.x</code> e la <code>1.x</code>).
+Nel VLSM devi sempre ordinare i reparti dal fabbisogno più grande a quello più piccolo. Questo serve a prevenire la frammentazione dello spazio IP e a evitare che le reti più grandi si sovrappongano ai confini di quelle più piccole.
 </details>
 
 <details>
@@ -391,5 +390,5 @@ Allocazione ordinata decrescente:
 
 **Spazio Rimasto (Future Espansioni):**
 L'intera progettazione ha consumato esattamente lo spazio del blocco `192.168.0.0/24`. 
-L'intera metà superiore della nostra rete nativa, ovvero il blocco **`192.168.1.0/24`**, rimane completamente intatta e disponibile per future aule, laboratori o servizi!
+L'intera metà superiore della nostra rete nativa, ovvero il blocco **`192.168.1.0/24`**, rimane completamente intatta e disponibile per future aule, laboratori o servizi! Ricorda che la rete assegnata è una <code>/23</code>, il che significa che hai a disposizione ben due blocchi di classe C interi (la <code>0.x</code> e la <code>1.x</code>).
 </details>
