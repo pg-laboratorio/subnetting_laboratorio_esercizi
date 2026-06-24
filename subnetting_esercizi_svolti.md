@@ -379,7 +379,7 @@ Si calcola mantenendo intatta la parte di rete nel quarto ottetto (`1011`) e imp
 > ---
 > 
 > ### Attenzione
-> A volte nei quiz potresti trovare una domanda trabocchetto come questa:
+> Osserva questa domanda:
 > *"L'IP 10.0.0.5 e l'IP 10.0.0.6 sono sulla stessa rete?"*
 > 
 > La risposta corretta è sempre: **"Non si può stabilire senza conoscere la Subnet Mask"**. 
