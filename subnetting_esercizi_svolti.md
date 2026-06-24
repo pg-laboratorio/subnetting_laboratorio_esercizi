@@ -71,7 +71,7 @@ L'indirizzo si ricava applicando l'operazione logica AND bit-a-bit tra l'indiriz
 
 ### 5. Indirizzo Broadcast
 L'indirizzo di broadcast si ottiene partendo dal valore binario dell'indirizzo di rete e convertendo a `1` tutti i 5 bit della parte host:
-* **Calcolo ultimo ottetto:** Il blocco `10000000` becomes `10011111`. In decimale corrisponde a $128 + 16 + 8 + 4 + 2 + 1 = 159$.
+* **Calcolo ultimo ottetto:** Il blocco `10000000` diventa `10011111`. In decimale corrisponde a $128 + 16 + 8 + 4 + 2 + 1 = 159$.
 * **Risultato:** `192.168.10.159`
 
 ---
