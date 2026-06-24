@@ -193,7 +193,7 @@ Convertiamo le due maschere in binario per evidenziare il cambiamento struttural
 
 #### 2. Numero di sottoreti che verranno create (Subnets Created)
 Il numero di combinazioni logiche ottenibili con i bit presi in prestito ($s$).
-* **Formula:** $2^s$ *(dove $s$ = bit di sottorete)*
+* **Formula:** $2^s$ *(dove s = bit di sottorete)*
 * **Calcolo:** $2^4 = 16$
 * **Risultato:** **16 sottoreti totali** create all'interno dello spazio della rete principale.
 
@@ -205,7 +205,7 @@ Il numero di bit rimasti impostati a `0` nella nuova subnet mask, dedicati all'i
 
 #### 4. Numero di host per sottorete (Hosts per Subnet)
 Il numero di indirizzi IP reali che si possono assegnare ai dispositivi in ogni singola nuova sottorete.
-* **Formula:** $2^h - 2$ *(dove $h$ = bit dell'host)*
+* **Formula:** $2^h - 2$ *(dove h = bit dell'host)*
 * **Calcolo:** $2^{12} - 2 = 4096 - 2 = 4094$
 * **Risultato:** **4094 host utilizzabili** per ogni sottorete.
 
@@ -267,7 +267,7 @@ Indica quanti bit sono stati "presi in prestito" dalla vecchia parte host della 
 
 #### 2. Numero di sottoreti che verranno create (Subnets Created)
 Il numero di nuove sottoreti più piccole ricavate all'interno della subnet `/26` di partenza, combinando i 2 bit presi in prestito ($s$).
-* **Formula:** $2^s$ *(dove $s$ = bit di sottorete)*
+* **Formula:** $2^s$ *(dove s = bit di sottorete)*
 * **Calcolo:** $2^2 = 4$
 * **Risultato:** **4 sottoreti totali** create all'interno del segmento originale.
 
@@ -279,7 +279,7 @@ Il numero di bit rimasti impostati a `0` nella nuova maschera `/28`, responsabil
 
 #### 4. Numero di host per sottorete (Hosts per Subnet)
 Il numero di indirizzi IP reali e assegnabili alle interfacce dei dispositivi in ogni nuova sottorete.
-* **Formula:** $2^h - 2$ *(dove $h$ = bit dell'host)*
+* **Formula:** $2^h - 2$ *(dove h = bit dell'host)*
 * **Calcolo:** $2^4 - 2 = 16 - 2 = 14$
 * **Risultato:** **14 host utilizzabili** per ciascuna sottorete (escludendo l'ID di rete e il broadcast).
 
