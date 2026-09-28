@@ -13,7 +13,7 @@ In questi esercizi non viene richiesto solamente di eseguire calcoli matematici,
 ## Esercizio 1 - Configurazione di una piccola azienda
 
 Una piccola azienda dispone della rete `192.168.10.0/24`.
-L'amministratore vuole suddividerla in sottoreti capaci di ospitare almeno **30 dispositivi** ciascuna.
+L'amministratore vuole suddividerla in sottoreti capaci di ospitare almeno **29 dispositivi** ciascuna, oltre all'interfaccia del router che farà da gateway per ogni sottorete.
 
 ### Domande
 
@@ -25,7 +25,7 @@ L'amministratore vuole suddividerla in sottoreti capaci di ospitare almeno **30 
 
 <details>
 <summary>Suggerimento 1</summary>
-Calcola quanti bit host servono per ottenere almeno 30 host utilizzabili.
+Conta gli indirizzi davvero necessari: 29 dispositivi + 1 gateway = 30. Poi calcola quanti bit host servono per ottenere almeno 30 host utilizzabili.
 </details>
 
 <details>
@@ -36,7 +36,8 @@ Utilizza la formula: <code>2^h - 2</code>
 <details>
 <summary>Soluzione</summary>
 
-* **Subnet mask:** `/27` (ovvero `255.255.255.224`)
+* **Indirizzi necessari:** `29 + 1 (gateway) = 30`.
+* **Subnet mask:** `/27` (ovvero `255.255.255.224`), perché `2^5 - 2 = 30` è sufficiente, mentre una `/28` offrirebbe solo `2^4 - 2 = 14` host.
 * **Numero di sottoreti:** `27 - 24 = 3 bit` presi in prestito -> `2^3 = 8` sottoreti.
 * **Host per sottorete:** `2^5 - 2 = 30` host.
 * **Prime quattro sottoreti:**
@@ -60,7 +61,7 @@ Un laboratorio deve ospitare:
 - 1 stampante
 - 1 access point
 
-La rete disponibile è `192.168.1.0/24`.
+La rete disponibile è `192.168.1.0/24` e il laboratorio utilizzerà la **prima** sottorete `/27`.
 
 ### Domande
 
@@ -71,17 +72,17 @@ La rete disponibile è `192.168.1.0/24`.
 
 <details>
 <summary>Suggerimento</summary>
-Conta il numero totale di dispositivi richiesti (IP necessari) e confrontalo con gli host disponibili in una /27.
+Conta il numero totale di indirizzi IP necessari e confrontalo con gli host disponibili in una /27. Attenzione: c'è un dispositivo che non compare nell'elenco ma che ha sempre bisogno di un IP nella sottorete…
 </details>
 
 <details>
 <summary>Soluzione</summary>
 
 * **Host disponibili:** `2^5 - 2 = 30` host utilizzabili.
-* **Dispositivi richiesti:** `24 + 1 + 1 = 26` IP necessari. 
+* **IP necessari:** `24 (PC) + 1 (stampante) + 1 (access point) + 1 (gateway, cioè l'interfaccia del router) = 27`. Il gateway è l'indirizzo che si dimentica più spesso: senza di lui i PC non escono dal laboratorio.
 * **La subnet è sufficiente?** Sì.
-* **Margine di crescita:** `30 - 26 = 4` host disponibili per il futuro.
-* **Primo host:** `192.168.1.1`
+* **Margine di crescita:** `30 - 27 = 3` host disponibili per il futuro.
+* **Primo host:** `192.168.1.1` (per convenzione viene spesso assegnato al gateway)
 * **Ultimo host:** `192.168.1.30` (il `.31` è il Broadcast).
 </details>
 
@@ -167,41 +168,37 @@ Trova la prima potenza di 2 che sia maggiore o uguale a 20.
 
 ---
 
-## Esercizio 5 - Analisi di una rete esistente
+## Esercizio 5 - Piano di indirizzamento completo
 
-Un server aziendale possiede il seguente indirizzo IP: `172.16.68.230/20`
+Il reparto IT deve documentare il piano di indirizzamento di una sede. La rete `192.168.20.0/24` viene suddivisa in sottoreti con maschera `/26`.
 
 ### Domande
 
-1. Determina la Subnet Mask estesa (decimale puntato).
-2. Calcola l'indirizzo di Rete.
-3. Calcola il Broadcast.
-4. Determina il primo e l'ultimo host assegnabile.
-5. Quanti host utilizzabili ci sono in questa subnet?
+1. Quanti bit vengono presi in prestito e quante sottoreti si ottengono?
+2. Completa la tabella con **tutte** le sottoreti: indirizzo di rete, primo host, ultimo host, broadcast.
+3. A quale sottorete appartiene l'host `192.168.20.150`?
+4. Un tecnico vuole assegnare a una stampante l'indirizzo `192.168.20.191/26`. È una scelta corretta?
 
 <details>
 <summary>Suggerimento</summary>
-Converti la maschera /20 in decimale puntato. Esegui l'operazione AND bit-a-bit sul terzo ottetto per isolare la porzione di rete.
+Usa il metodo del salto: l'ultimo ottetto della maschera <code>/26</code> vale <code>192</code>, quindi le sottoreti avanzano di <code>256 - 192 = 64</code> in 64. Ogni sottorete termina con il broadcast, che è sempre l'indirizzo immediatamente precedente alla rete successiva.
 </details>
 
 <details>
 <summary>Soluzione</summary>
 
-* **Mask:** `255.255.240.0` (il terzo ottetto `240` in binario è `11110000`).
+* **Bit presi in prestito:** `26 - 24 = 2` -> `2^2 = 4` sottoreti, ciascuna con `2^6 - 2 = 62` host utilizzabili.
+* **Tabella completa** (salto = 64):
 
-Calcoliamo l'indirizzo di rete con l'operazione AND sul terzo ottetto (tra `68` e `240`):
-```text
-68  = 01000100  AND
-240 = 11110000
-----------------
-64  = 01000000
-```
+| Sottorete | Indirizzo di Rete | Primo Host | Ultimo Host | Broadcast |
+| :---: | :--- | :--- | :--- | :--- |
+| 1 | `192.168.20.0` | `192.168.20.1` | `192.168.20.62` | `192.168.20.63` |
+| 2 | `192.168.20.64` | `192.168.20.65` | `192.168.20.126` | `192.168.20.127` |
+| 3 | `192.168.20.128` | `192.168.20.129` | `192.168.20.190` | `192.168.20.191` |
+| 4 | `192.168.20.192` | `192.168.20.193` | `192.168.20.254` | `192.168.20.255` |
 
-* **Network:** `172.16.64.0`
-* **Broadcast:** Impostando a 1 tutti i bit della parte host (gli ultimi 4 bit del terzo ottetto e tutti gli 8 del quarto) otteniamo `172.16.79.255`.
-* **Primo host:** `172.16.64.1`
-* **Ultimo host:** `172.16.79.254`
-* **Host totali:** `2^12 - 2 = 4094`
+* **Host `192.168.20.150`:** `150` è compreso tra `128` e `191`, quindi appartiene alla **sottorete 3** (`192.168.20.128/26`).
+* **Indirizzo `192.168.20.191/26`:** **No.** È l'indirizzo di **broadcast** della sottorete 3 e non può essere assegnato a nessun dispositivo. Il sistema operativo della stampante (o il router) rifiuterebbe la configurazione, oppure la stampante non funzionerebbe correttamente. L'ultimo indirizzo assegnabile in quella sottorete è `192.168.20.190`.
 </details>
 
 ---
@@ -253,7 +250,7 @@ L'ultimo ottetto della maschera è `240` (`11110000` in binario). Calcoliamo la 
 ```
 
 * **Comunicazione diretta:** `S1 <-> S2` (condividono lo stesso indirizzo di rete `192.168.50.176`).
-* **Richiedono Router:** S3 appartiene a una subnet diversa (`.192`), quindi i flussi verso S1 o S2 devono essere ruotati da un gateway.
+* **Richiedono Router:** S3 appartiene a una subnet diversa (`.192`), quindi i flussi verso S1 o S2 devono essere instradati da un gateway (router).
 </details>
 
 ---
@@ -304,42 +301,52 @@ Calcola a ritroso: se ti servono solo 2 bit per la parte host, quanti bit ti rim
 
 ## Esercizio 8 - Problema di connettività (Troubleshooting)
 
-Un tecnico riceve questo ticket: *"Due PC non riescono a comunicare tra loro."*
+Un tecnico riceve questo ticket: *"Due PC dello stesso ufficio, collegati allo stesso switch, non riescono a comunicare tra loro."*
+
+Controllando la configurazione IP trova questi valori:
 
 | Dispositivo | IP | Subnet Mask |
 | :--- | :--- | :--- |
 | **PC-1** | `10.10.10.34` | `/27` |
-| **PC-2** | `10.10.10.62` | `/27` |
+| **PC-2** | `10.10.10.62` | `/28` |
 
 ### Domande
 
-1. Calcola la rete di appartenenza di PC-1 e PC-2.
-2. I dispositivi si trovano nella stessa subnet? 
-3. L'errore di comunicazione potrebbe essere causato da una configurazione errata della Subnet Mask?
+1. Calcola la rete di appartenenza di PC-1 e di PC-2, ciascuno con **la propria** subnet mask.
+2. PC-1 considera PC-2 parte della propria rete? E PC-2 considera PC-1 parte della propria rete?
+3. Che cosa succede quando PC-1 invia un `ping` a PC-2?
+4. Come si risolve il problema?
+
+<details>
+<summary>Suggerimento</summary>
+Ogni host decide se una destinazione è "locale" usando <b>solo la propria</b> subnet mask. Calcola l'intervallo di indirizzi che ciascun PC ritiene locale e verifica se l'altro PC vi rientra.
+</details>
 
 <details>
 <summary>Soluzione</summary>
 
-La subnet mask `/27` corrisponde a `255.255.255.224` (ultimo ottetto: `11100000`). Eseguiamo l'AND logico per i due IP.
-
-**Rete PC-1:**
+**Rete PC-1** (`/27` = `255.255.255.224`, ultimo ottetto `11100000`):
 ```text
 34  = 00100010  AND
 224 = 11100000
 ----------------
-32  = 00100000  -> Rete PC-1: 10.10.10.32
+32  = 00100000  -> Rete PC-1: 10.10.10.32/27 (da .32 a .63)
 ```
 
-**Rete PC-2:**
+**Rete PC-2** (`/28` = `255.255.255.240`, ultimo ottetto `11110000`):
 ```text
 62  = 00111110  AND
-224 = 11100000
+240 = 11110000
 ----------------
-32  = 00100000  -> Rete PC-2: 10.10.10.32
+48  = 00110000  -> Rete PC-2: 10.10.10.48/28 (da .48 a .63)
 ```
 
-* **Esito:** Generano esattamente lo stesso indirizzo di rete (`10.10.10.32`).
-* **Risposta:** Si trovano nella stessa subnet. La subnet mask inserita **è corretta** per entrambi e non è la causa del problema. Il tecnico dovrà indagare su altre cause (es. Firewall attivo, problemi di cablaggio, porte disabilitate sullo switch).
+* **Punto di vista di PC-1:** l'indirizzo `.62` rientra nel suo intervallo `.32 – .63`, quindi PC-1 considera PC-2 **locale** e gli invia i pacchetti direttamente (tramite ARP).
+* **Punto di vista di PC-2:** l'indirizzo `.34` **non** rientra nel suo intervallo `.48 – .63`, quindi PC-2 considera PC-1 **remoto** e prova a inviargli le risposte tramite il gateway.
+* **Cosa succede al ping:** la richiesta arriva a PC-2, ma la risposta prende un'altra strada. Se il gateway non esiste o non è raggiungibile dalla rete di PC-2, la risposta si perde e il ping fallisce. Anche quando la risposta arriva passando dal router, la comunicazione è **asimmetrica** e fragile: è un tipico problema difficile da diagnosticare senza calcolare le reti.
+* **Soluzione:** correggere la subnet mask di PC-2 in `/27` (`255.255.255.224`). Con la stessa maschera, entrambi i PC appartengono alla rete `10.10.10.32/27` e comunicano direttamente tramite lo switch.
+
+> **Nota per il tecnico:** se i due PC avessero avuto entrambi la maschera `/27`, la subnet mask **non** sarebbe stata la causa del guasto: in quel caso si dovrebbero indagare altre cause (firewall attivo sui PC, cavi o porte dello switch, VLAN diverse). Calcolare le reti serve proprio a escludere o confermare rapidamente questa ipotesi.
 </details>
 
 ---
