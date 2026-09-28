@@ -29,13 +29,16 @@ Partendo da un indirizzo IPv4 qualunque andremo a rispondere alle domande:
 >| **Non Specificato** | `0.0.0.0`<br>`0.0.0.0/32` | È esattamente l'indirizzo **`0.0.0.0`**. | **NO** | Usato temporaneamente dai dispositivi all'avvio prima di ottenere un IP valido o per definire la rotta di default (*default route*) nel routing. |
 >| **Multicast (Classe D)** | `224.0.0.0 - 239.255.255.255`<br>`224.0.0.0/4` | Il primo ottetto è compreso **tra 224 e 239**. | **NO** *(Solo su reti abilitate)* | Invio di un singolo flusso di dati replicato verso un gruppo specifico di host iscritti (es. streaming live IPTV o protocolli di routing). |
 >| **Broadcast Limitato** | `255.255.255.255`<br>`255.255.255.255/32` | È esattamente l'indirizzo **`255.255.255.255`**. | **NO** | Pacchetto inviato contemporaneamente a tutti gli host appartenenti alla stessa rete locale fisica (es. richiesta *DHCP DISCOVER*). |
->| **Sperimentale (Classe E)** | `240.0.0.0 - 255.255.255.254`<br>`240.0.0.0/4` | Il primo ottetto è compreso **tra 240 e 255**. | **NO** | Blocco di indirizzi interamente riservato ad attività di ricerca, scopi sperimentali e usi futuri. |
+>| **Sperimentale (Classe E)** | `240.0.0.0 - 255.255.255.254`<br>`240.0.0.0/4` | Il primo ottetto è compreso **tra 240 e 255** (escluso l'indirizzo `255.255.255.255`, vedi riga precedente). | **NO** | Blocco di indirizzi interamente riservato ad attività di ricerca, scopi sperimentali e usi futuri. |
+>| **Shared Address Space (CGNAT)** | `100.64.0.0 - 100.127.255.255`<br>`100.64.0.0/10` | Inizia con **`100.`** e il secondo ottetto è compreso **tra 64 e 127**. | **NO** | Riservato ai provider per il *Carrier-Grade NAT* (RFC 6598): può comparire come IP WAN del router di casa quando il provider condivide un unico IP pubblico tra più clienti. |
 >| **Pubblico** | *Tutti i blocchi non speciali/privati* | Non rientra in nessuna delle regole o eccezioni precedenti. | **SÌ** | Identifica in modo univoco e globale un dispositivo (server web, router di confine) esposto direttamente su Internet. |
 >
 > ---
 > **Nota su Routing e NAT:** Gli indirizzi contrassegnati con **Instradabile su Internet: NO** non vengono propagati sulla rete pubblica e vengono bloccati dai router di frontiera dei provider Internet (ISP). 
 > * Gli **indirizzi privati (RFC 1918)** possono accedere a Internet solo se il router della LAN implementa il meccanismo di **NAT (Network Address Translation)**, che mappa l'IP privato interno su un IP pubblico valido.
 > * Gli altri indirizzi speciali (come Loopback o APIPA) non vengono NATtati e sono confinati all'host locale o al segmento fisico di rete.
+>
+> **Nota sulle classi:** la suddivisione in Classi A, B, C, D, E (*classful*) è la nomenclatura storica di IPv4, abbandonata nel 1993 con l'introduzione del **CIDR** (*classless*). Oggi la lunghezza della parte di rete è indicata solo dal prefisso (`/8`, `/27`...), ma i nomi delle classi si usano ancora per indicare rapidamente gli intervalli: per questo compaiono negli esercizi come "classificazione storica".
 
 
 ---
@@ -43,7 +46,7 @@ Partendo da un indirizzo IPv4 qualunque andremo a rispondere alle domande:
 ## Esercizio 1.1: Analisi di 192.168.10.133/27
 
 ### 1. Identificare lo Scopo
-* **Classificazione:** Classe C (Maschera nativa `/24`).
+* **Classificazione (storica):** Classe C (maschera nativa `/24`, oggi sostituita dal prefisso CIDR indicato).
 * **Ambito di Rete:** Privato. Appartiene al blocco normato dall'RFC 1918 (inizia con il prefisso fisso `192.168.`). È valido esclusivamente all'interno di una rete locale (LAN) e non risulta instradabile direttamente su Internet senza l'ausilio del NAT.
 
 ### 2. Identificare la Subnet Mask
@@ -55,6 +58,8 @@ Il prefisso CIDR `/27` indica che i primi 27 bit della maschera sono impostati a
 Il numero di host utilizzabili dipende dai 5 bit dedicati ai dispositivi ($h = 5$). Si applica la formula standard $2^h - 2$:
 * **Calcolo:** $2^5 - 2 = 32 - 2 = 30$
 * **Risultato:** **30 host utilizzabili** all'interno di questa sottorete (vengono sottratti 2 indirizzi per escludere l'ID di rete e l'indirizzo di broadcast).
+
+> **Eccezioni alla formula $2^h - 2$:** la formula vale per le maschere fino a `/30`. Con `/31` ($h = 1$) la formula darebbe $0$ host, ma l'RFC 3021 consente di usare entrambi gli indirizzi sui collegamenti punto-punto tra router (non esistono né indirizzo di rete né broadcast). Con `/32` ($h = 0$) si identifica un singolo host (usato ad esempio nelle rotte verso un solo dispositivo o sulle interfacce di loopback dei router).
 
 ### 4. Indirizzo di Rete
 L'indirizzo si ricava applicando l'operazione logica AND bit-a-bit tra l'indirizzo IP del dispositivo e la subnet mask calcolata. L'operazione è discriminante nell'ultimo ottetto ($133 \text{ AND } 224$):
@@ -79,8 +84,8 @@ L'indirizzo di broadcast si ottiene partendo dal valore binario dell'indirizzo d
 ## Esercizio 1.2: Analisi di 172.16.43.100/22
 
 ### 1. Identificare lo Scopo
-* **Classificazione:** Classe B (Maschera nativa `/16`).
-* **Ambito di Rete:** Privato. Fa parte del blocco RFC 1918 dedicato alle medie e grandi aziende, poiché inizia con `172.` ed il secondo ottetto ($16$) si colloca nell'intervallo protetto tra 16 e 31. È isolato dal traffico Internet globale.
+* **Classificazione (storica):** Classe B (maschera nativa `/16`, oggi sostituita dal prefisso CIDR indicato).
+* **Ambito di Rete:** Privato. Fa parte del blocco privato definito dall'RFC 1918 (`172.16.0.0/12`), poiché inizia con `172.` e il secondo ottetto ($16$) è compreso tra 16 e 31. È isolato dal traffico Internet globale.
 
 ### 2. Identificare la Subnet Mask
 Il prefisso CIDR `/22` definisce una maschera con 22 bit di rete bloccati a `1` e 10 bit d'host allocati a `0`.
@@ -116,7 +121,7 @@ Prendiamo l'indirizzo di rete e configuriamo a valore logico `1` tutti i 10 bit 
 ## Esercizio 1.3: Analisi di 200.1.1.70/26
 
 ### 1. Identificare lo Scopo
-* **Classificazione:** Classe C (Maschera nativa `/24`).
+* **Classificazione (storica):** Classe C (maschera nativa `/24`, oggi sostituita dal prefisso CIDR indicato).
 * **Ambito di Rete:** Pubblico. Non rientrando in alcuna categoria di indirizzi privati o speciali, questo IP è registrato in modo univoco a livello globale. È direttamente raggiungibile e instradabile sulla rete Internet globale.
 
 
@@ -385,3 +390,5 @@ Si calcola mantenendo intatta la parte di rete nel quarto ottetto (`1011`) e imp
 > La risposta corretta è sempre: **"Non si può stabilire senza conoscere la Subnet Mask"**. 
 > * Se la mask fosse `/30` (`255.255.255.252`), i blocchi andrebbero di 4 in 4 (`0, 4, 8...`). `.5` sarebbe nella rete `10.0.0.4`, mentre `.6` sarebbe nella stessa rete `10.0.0.4` (**Stessa rete**).
 > * Se la mask fosse `/31` (`255.255.255.254`), i blocchi andrebbero di 2 in 2 (`0, 2, 4, 6...`). `.5` sarebbe nella rete `10.0.0.4`, mentre `.6` sarebbe nella rete `10.0.0.6` (**Reti diverse**).
+>
+> *Nota:* l'esempio con la `/31` serve solo a mostrare come cambiano i blocchi. Una `/31` non si usa per una LAN con PC: ha solo 2 indirizzi ed è riservata ai collegamenti punto-punto tra router (vedi le eccezioni alla formula $2^h - 2$ nell'Esercizio 1.1).
