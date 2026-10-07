@@ -25,22 +25,24 @@ L'amministratore vuole suddividerla in sottoreti capaci di ospitare almeno **29 
 
 <details>
 <summary>Suggerimento 1</summary>
+
 Conta gli indirizzi davvero necessari: 29 dispositivi + 1 gateway = 30. Poi calcola quanti bit host servono per ottenere almeno 30 host utilizzabili.
 </details>
 
 <details>
 <summary>Suggerimento 2</summary>
-Utilizza la formula: <code>2^h - 2</code>
+
+Utilizza la formula $2^h - 2$, poi trova le sottoreti con il metodo del salto.
 </details>
 
 <details>
 <summary>Soluzione</summary>
 
-* **Indirizzi necessari:** `29 + 1 (gateway) = 30`.
-* **Subnet mask:** `/27` (ovvero `255.255.255.224`), perché `2^5 - 2 = 30` è sufficiente, mentre una `/28` offrirebbe solo `2^4 - 2 = 14` host.
-* **Numero di sottoreti:** `27 - 24 = 3 bit` presi in prestito -> `2^3 = 8` sottoreti.
-* **Host per sottorete:** `2^5 - 2 = 30` host.
-* **Prime quattro sottoreti:**
+* **Indirizzi necessari:** $29 + 1 \text{ (gateway)} = 30$.
+* **Subnet mask:** `/27` (ovvero `255.255.255.224`), perché $2^5 - 2 = 30$ è sufficiente, mentre una `/28` offrirebbe solo $2^4 - 2 = 14$ host.
+* **Numero di sottoreti:** $27 - 24 = 3$ bit presi in prestito → $2^3 = 8$ sottoreti.
+* **Host per sottorete:** $2^5 - 2 = 30$ host.
+* **Prime quattro sottoreti** (salto $256 - 224 = 32$):
 
 | Sottorete | Indirizzo di Rete |
 | :---: | :--- |
@@ -49,7 +51,7 @@ Utilizza la formula: <code>2^h - 2</code>
 | 3 | `192.168.10.64` |
 | 4 | `192.168.10.96` |
 
-* **Broadcast seconda sottorete:** `192.168.10.63`
+* **Broadcast seconda sottorete:** `192.168.10.63` (la terza sottorete inizia a `.64`, quindi $64 - 1 = 63$).
 </details>
 
 ---
@@ -72,18 +74,19 @@ La rete disponibile è `192.168.1.0/24` e il laboratorio utilizzerà la **prima*
 
 <details>
 <summary>Suggerimento</summary>
-Conta il numero totale di indirizzi IP necessari e confrontalo con gli host disponibili in una /27. Attenzione: c'è un dispositivo che non compare nell'elenco ma che ha sempre bisogno di un IP nella sottorete…
+
+Conta il numero totale di indirizzi IP necessari e confrontalo con gli host disponibili in una `/27`. Attenzione: c'è un dispositivo che non compare nell'elenco ma che ha sempre bisogno di un IP nella sottorete…
 </details>
 
 <details>
 <summary>Soluzione</summary>
 
-* **Host disponibili:** `2^5 - 2 = 30` host utilizzabili.
-* **IP necessari:** `24 (PC) + 1 (stampante) + 1 (access point) + 1 (gateway, cioè l'interfaccia del router) = 27`. Il gateway è l'indirizzo che si dimentica più spesso: senza di lui i PC non escono dal laboratorio.
+* **Host disponibili:** $2^5 - 2 = 30$ host utilizzabili.
+* **IP necessari:** $24 \text{ (PC)} + 1 \text{ (stampante)} + 1 \text{ (access point)} + 1 \text{ (gateway)} = 27$. Il gateway, cioè l'interfaccia del router, è l'indirizzo che si dimentica più spesso: senza di lui i PC non escono dal laboratorio.
 * **La subnet è sufficiente?** Sì.
-* **Margine di crescita:** `30 - 27 = 3` host disponibili per il futuro.
-* **Primo host:** `192.168.1.1` (per convenzione viene spesso assegnato al gateway)
-* **Ultimo host:** `192.168.1.30` (il `.31` è il Broadcast).
+* **Margine di crescita:** $30 - 27 = 3$ host disponibili per il futuro.
+* **Primo host:** `192.168.1.1` (per convenzione viene spesso assegnato al gateway).
+* **Ultimo host:** `192.168.1.30` (il `.31` è il broadcast).
 </details>
 
 ---
@@ -92,10 +95,10 @@ Conta il numero totale di indirizzi IP necessari e confrontalo con gli host disp
 
 | Dispositivo | IP Configurato |
 | :--- | :--- |
-| **PC-A** | `192.168.1.45` |
-| **PC-B** | `192.168.1.62` |
+| **PC-A** | `192.168.1.100` |
+| **PC-B** | `192.168.1.126` |
 
-**Subnet Mask:** `255.255.255.224`
+**Subnet Mask:** `255.255.255.192`
 
 ### Domande
 
@@ -106,32 +109,36 @@ Conta il numero totale di indirizzi IP necessari e confrontalo con gli host disp
 
 <details>
 <summary>Suggerimento</summary>
-Applica l'operazione logica AND bit-a-bit tra l'ultimo ottetto degli IP e l'ultimo ottetto della Subnet Mask per trovare gli indirizzi di rete.
+
+Applica l'operazione logica AND bit-a-bit tra l'ultimo ottetto degli IP e l'ultimo ottetto della Subnet Mask per trovare gli indirizzi di rete. Puoi verificare il risultato con il metodo del salto.
 </details>
 
 <details>
 <summary>Soluzione</summary>
 
-Eseguiamo l'operazione AND tra l'ultimo ottetto degli IP e la maschera (`224` in binario è `11100000`).
+Eseguiamo l'operazione AND tra l'ultimo ottetto degli IP e la maschera (`192` in binario è `11000000`).
 
 **Rete PC-A:**
 ```text
-45  = 00101101  AND
-224 = 11100000
+100 = 01100100  AND
+192 = 11000000
 ----------------
-32  = 00100000  -> Rete: 192.168.1.32
+64  = 01000000  -> Rete: 192.168.1.64
 ```
 
 **Rete PC-B:**
 ```text
-62  = 00111110  AND
-224 = 11100000
+126 = 01111110  AND
+192 = 11000000
 ----------------
-32  = 00100000  -> Rete: 192.168.1.32
+64  = 01000000  -> Rete: 192.168.1.64
 ```
 
-* **Risultato:** Si trovano nella **STESSA RETE**.
+**Verifica con il salto:** $256 - 192 = 64$, quindi le sottoreti sono `.0`, `.64`, `.128`, `.192`. Sia `100` sia `126` cadono tra `64` e `128`.
+
+* **Risultato:** Si trovano nella **STESSA RETE** (`192.168.1.64/26`, da `.64` a `.127`).
 * **Comunicazione:** Sì, possono comunicare direttamente tramite lo switch locale, senza bisogno di un router/gateway.
+* **Osservazione:** `.126` è l'**ultimo host** utilizzabile della sottorete, perché `.127` è il broadcast. Un PC configurato con `.128` sarebbe già in un'altra rete.
 </details>
 
 ---
@@ -152,18 +159,19 @@ Devono essere create **almeno 20 sottoreti** per vari reparti e sedi future.
 
 <details>
 <summary>Suggerimento</summary>
+
 Trova la prima potenza di 2 che sia maggiore o uguale a 20.
 </details>
 
 <details>
 <summary>Soluzione</summary>
 
-* `2^4 = 16` (Non basta, ci servono 20 reti).
-* `2^5 = 32` (Perfetto).
-* **Bit presi in prestito:** `5 bit`.
-* **Nuova mask:** `/16 + 5 = /21` -> `255.255.248.0`
-* **Sottoreti ottenute:** `32 sottoreti` in totale.
-* **Host disponibili:** Ci restano 11 bit per gli host (`32 - 21 = 11`). -> `2^11 - 2 = 2046` host per sottorete.
+* $2^4 = 16$ (non basta, ci servono 20 reti).
+* $2^5 = 32$ (sufficiente).
+* **Bit presi in prestito:** 5 bit.
+* **Nuova mask:** $16 + 5 = 21$ → `/21` → `255.255.248.0`
+* **Sottoreti ottenute:** 32 sottoreti in totale.
+* **Host disponibili:** restano $32 - 21 = 11$ bit per gli host → $2^{11} - 2 = 2046$ host per sottorete.
 </details>
 
 ---
@@ -181,13 +189,14 @@ Il reparto IT deve documentare il piano di indirizzamento di una sede. La rete `
 
 <details>
 <summary>Suggerimento</summary>
-Usa il metodo del salto: l'ultimo ottetto della maschera <code>/26</code> vale <code>192</code>, quindi le sottoreti avanzano di <code>256 - 192 = 64</code> in 64. Ogni sottorete termina con il broadcast, che è sempre l'indirizzo immediatamente precedente alla rete successiva.
+
+Usa il metodo del salto: l'ultimo ottetto della maschera `/26` vale `192`, quindi le sottoreti avanzano di $256 - 192 = 64$ in 64. Ogni sottorete termina con il broadcast, che è sempre l'indirizzo immediatamente precedente alla rete successiva.
 </details>
 
 <details>
 <summary>Soluzione</summary>
 
-* **Bit presi in prestito:** `26 - 24 = 2` -> `2^2 = 4` sottoreti, ciascuna con `2^6 - 2 = 62` host utilizzabili.
+* **Bit presi in prestito:** $26 - 24 = 2$ → $2^2 = 4$ sottoreti, ciascuna con $2^6 - 2 = 62$ host utilizzabili.
 * **Tabella completa** (salto = 64):
 
 | Sottorete | Indirizzo di Rete | Primo Host | Ultimo Host | Broadcast |
@@ -205,13 +214,13 @@ Usa il metodo del salto: l'ultimo ottetto della maschera <code>/26</code> vale <
 
 ## Esercizio 6 - Stampanti di rete
 
-Tre stampanti sono configurate con la subnet mask `255.255.255.240` (`/28`).
+In una sede aziendale di grandi dimensioni, tre stampanti sono configurate con la subnet mask `255.255.252.0` (`/22`).
 
 | Stampante | IP |
 | :---: | :--- |
-| **S1** | `192.168.50.178` |
-| **S2** | `192.168.50.185` |
-| **S3** | `192.168.50.194` |
+| **S1** | `10.20.33.15` |
+| **S2** | `10.20.35.200` |
+| **S3** | `10.20.36.10` |
 
 ### Domande
 
@@ -221,45 +230,54 @@ Tre stampanti sono configurate con la subnet mask `255.255.255.240` (`/28`).
 4. Quali dispositivi comunicano direttamente tra loro e quali richiedono un router?
 
 <details>
+<summary>Suggerimento</summary>
+
+Questa volta l'ottetto "interessante" non è l'ultimo: la maschera vale `252` nel **terzo** ottetto e `0` nel quarto. Il quarto ottetto dell'IP quindi non conta (AND con 0 dà sempre 0). Con il salto: $256 - 252 = 4$, le reti avanzano di 4 in 4 nel terzo ottetto. Non farti ingannare da quali IP "sembrano" vicini!
+</details>
+
+<details>
 <summary>Soluzione</summary>
 
-L'ultimo ottetto della maschera è `240` (`11110000` in binario). Calcoliamo la rete per ciascuna stampante tramite l'operazione AND.
+L'ottetto interessante è il terzo: la maschera vale `252` (`11111100` in binario). Calcoliamo la rete per ciascuna stampante tramite l'operazione AND sul terzo ottetto; il quarto ottetto della rete diventa `0`.
 
 **Rete S1:**
 ```text
-178 = 10110010  AND
-240 = 11110000
+33  = 00100001  AND
+252 = 11111100
 ----------------
-176 = 10110000  -> Rete S1: 192.168.50.176
+32  = 00100000  -> Rete S1: 10.20.32.0
 ```
 
 **Rete S2:**
 ```text
-185 = 10111001  AND
-240 = 11110000
+35  = 00100011  AND
+252 = 11111100
 ----------------
-176 = 10110000  -> Rete S2: 192.168.50.176
+32  = 00100000  -> Rete S2: 10.20.32.0
 ```
 
 **Rete S3:**
 ```text
-194 = 11000010  AND
-240 = 11110000
+36  = 00100100  AND
+252 = 11111100
 ----------------
-192 = 11000000  -> Rete S3: 192.168.50.192
+36  = 00100100  -> Rete S3: 10.20.36.0
 ```
 
-* **Comunicazione diretta:** `S1 <-> S2` (condividono lo stesso indirizzo di rete `192.168.50.176`).
-* **Richiedono Router:** S3 appartiene a una subnet diversa (`.192`), quindi i flussi verso S1 o S2 devono essere instradati da un gateway (router).
+**Verifica con il salto:** con salto 4 le reti nel terzo ottetto sono `..., 28, 32, 36, 40, ...`. I valori `33` e `35` cadono nel blocco `32`–`35`, mentre `36` apre il blocco successivo.
+
+* **Comunicazione diretta:** `S1 <-> S2`: condividono la rete `10.20.32.0/22` (da `10.20.32.0` a `10.20.35.255`), anche se il terzo ottetto è diverso (`33` e `35`).
+* **Richiedono Router:** S3 appartiene alla rete `10.20.36.0/22`, quindi i flussi verso S1 o S2 devono essere instradati da un gateway (router).
+* **La trappola:** S2 (`10.20.35.200`) e S3 (`10.20.36.10`) *sembrano* vicinissimi, ma sono in reti diverse; S1 e S2 sembrano più lontani, ma sono nella stessa rete. Senza calcolo, a occhio si sbaglia.
 </details>
 
 ---
 
 # Livello Avanzato
 
-## Esercizio 7 — Collegamento Point-to-Point tra Router
+## Esercizio 7 - Collegamento Point-to-Point tra Router
 
-La tua azienda ha appena aperto una nuova sede. Devi collegare in modo diretto ed esclusivo il router della sede principale (**Router-A**) al router della nuova filiale (**Router-B**) tramite un link dedicato in fibra. 
+La tua azienda ha appena aperto una nuova sede. Devi collegare in modo diretto ed esclusivo il router della sede principale (**Router-A**) al router della nuova filiale (**Router-B**) tramite un link dedicato in fibra.
 
 L'ISP ti ha assegnato il blocco di rete `10.255.255.0/24` da utilizzare per i collegamenti dell'infrastruttura. L'obiettivo è sprecare il minor numero possibile di indirizzi IP per questo singolo collegamento tra i due router.
 
@@ -272,11 +290,13 @@ L'ISP ti ha assegnato il blocco di rete `10.255.255.0/24` da utilizzare per i co
 
 <details>
 <summary>Suggerimento 1</summary>
+
 Per collegare due router tra loro ti servono esattamente 2 indirizzi IP validi. Quale potenza di 2, sottratta di 2 (Rete e Broadcast), ti dà come risultato esattamente 2?
 </details>
 
 <details>
 <summary>Suggerimento 2</summary>
+
 Calcola a ritroso: se ti servono solo 2 bit per la parte host, quanti bit ti rimangono per la parte di rete su un totale di 32?
 </details>
 
@@ -284,14 +304,14 @@ Calcola a ritroso: se ti servono solo 2 bit per la parte host, quanti bit ti rim
 <summary>Soluzione</summary>
 
 1. **Subnet Mask ideale:** `/30` (in decimale puntato corrisponde a `255.255.255.252`).
-2. **Host utilizzabili:** Lasciando 2 bit per gli host (`32 - 30 = 2`), la formula è `2^2 - 2 = 2` host. Lo spazio esatto e perfetto per due interfacce router, senza sprecare nessun indirizzo extra!
+2. **Host utilizzabili:** lasciando $32 - 30 = 2$ bit per gli host, la formula dà $2^2 - 2 = 2$ host. Lo spazio esatto e perfetto per due interfacce router, senza sprecare nessun indirizzo extra!
 3. **Parametri della prima sottorete (Link Router-A <-> Router-B):**
    * **Network:** `10.255.255.0`
    * **IP Router-A:** `10.255.255.1`
    * **IP Router-B:** `10.255.255.2`
    * **Broadcast:** `10.255.255.3`
 4. **Seconda sottorete (Link futuri):**
-   * Il *Magic Number* (salto) è `256 - 252 = 4`. Le reti viaggiano di 4 in 4.
+   * Il *Magic Number* (salto) è $256 - 252 = 4$. Le reti viaggiano di 4 in 4.
    * La rete successiva disponibile inizierà quindi da **`10.255.255.4/30`** (con IP validi `.5` e `.6`, e broadcast `.7`).
 
 *Nota tecnica:* Sebbene oggi i router moderni supportino anche le maschere `/31` (RFC 3021) appositamente per i link punto-punto (eliminando rete e broadcast), la `/30` rimane lo standard didattico e operativo più richiesto e universale.
@@ -319,7 +339,8 @@ Controllando la configurazione IP trova questi valori:
 
 <details>
 <summary>Suggerimento</summary>
-Ogni host decide se una destinazione è "locale" usando <b>solo la propria</b> subnet mask. Calcola l'intervallo di indirizzi che ciascun PC ritiene locale e verifica se l'altro PC vi rientra.
+
+Ogni host decide se una destinazione è "locale" usando **solo la propria** subnet mask. Calcola l'intervallo di indirizzi che ciascun PC ritiene locale e verifica se l'altro PC vi rientra.
 </details>
 
 <details>
@@ -356,12 +377,14 @@ Ogni host decide se una destinazione è "locale" usando <b>solo la propria</b> s
 Sei il tecnico incaricato di progettare la rete per un istituto.
 Rete disponibile: `192.168.0.0/23` (che include lo spazio da `192.168.0.0` a `192.168.1.255`).
 
-| Reparto | Fabbisogno Host |
-| :--- | :--- |
+| Reparto | Dispositivi da collegare |
+| :--- | :---: |
 | **Wi-Fi Ospiti** | 100 |
 | **Laboratorio** | 60 |
 | **Segreteria** | 20 |
 | **Aula Docenti** | 15 |
+
+Ogni reparto avrà una propria sottorete con un'interfaccia del router come gateway.
 
 ### Obiettivi
 
@@ -370,32 +393,55 @@ Rete disponibile: `192.168.0.0/23` (che include lo spazio da `192.168.0.0` a `19
 3. Indicare quali porzioni di rete rimangono libere per le espansioni future.
 
 <details>
-<summary>Suggerimento</summary>
+<summary>Suggerimento 1</summary>
+
 Nel VLSM devi sempre ordinare i reparti dal fabbisogno più grande a quello più piccolo. Questo serve a prevenire la frammentazione dello spazio IP e a evitare che le reti più grandi si sovrappongano ai confini di quelle più piccole.
+</details>
+
+<details>
+<summary>Suggerimento 2</summary>
+
+Come negli esercizi 1 e 2: ogni sottorete ha bisogno di un indirizzo in più per il **gateway**. Calcola il fabbisogno reale di ogni reparto prima di scegliere la maschera.
 </details>
 
 <details>
 <summary>Soluzione</summary>
 
+**Fabbisogno reale** (dispositivi + 1 gateway) e maschera scelta, in ordine decrescente:
+
+| Reparto | Dispositivi | + Gateway | Maschera | Host disponibili | Margine |
+| :--- | :---: | :---: | :---: | :---: | :---: |
+| **Wi-Fi Ospiti** | 100 | 101 | `/25` | 126 | 25 |
+| **Laboratorio** | 60 | 61 | `/26` | 62 | **1** |
+| **Segreteria** | 20 | 21 | `/27` | 30 | 9 |
+| **Aula Docenti** | 15 | 16 | `/27` | 30 | 14 |
+
 Allocazione ordinata decrescente:
 
-1. **Wi-Fi Ospiti (100 host)** -> Serve una `/25` (126 host)
-* **Network:** `192.168.0.0/25`
-* Broadcast: `192.168.0.127`
+1. **Wi-Fi Ospiti** → `/25` (126 host)
+   * **Network:** `192.168.0.0/25`
+   * **Gateway:** `192.168.0.1`
+   * **Broadcast:** `192.168.0.127`
 
-2. **Laboratorio (60 host)** -> Serve una `/26` (62 host)
-* **Network:** `192.168.0.128/26`
-* Broadcast: `192.168.0.191`
+2. **Laboratorio** → `/26` (62 host)
+   * **Network:** `192.168.0.128/26`
+   * **Gateway:** `192.168.0.129`
+   * **Broadcast:** `192.168.0.191`
 
-3. **Segreteria (20 host)** -> Serve una `/27` (30 host)
-* **Network:** `192.168.0.192/27`
-* Broadcast: `192.168.0.223`
+3. **Segreteria** → `/27` (30 host)
+   * **Network:** `192.168.0.192/27`
+   * **Gateway:** `192.168.0.193`
+   * **Broadcast:** `192.168.0.223`
 
-4. **Aula Docenti (15 host)** -> Serve una `/27` (30 host) *Nota: una /28 darebbe solo 14 host, non sufficienti.*
-* **Network:** `192.168.0.224/27`
-* Broadcast: `192.168.0.255`
+4. **Aula Docenti** → `/27` (30 host)
+   * **Network:** `192.168.0.224/27`
+   * **Gateway:** `192.168.0.225`
+   * **Broadcast:** `192.168.0.255`
+   * *Nota:* senza contare il gateway (15 indirizzi) si potrebbe pensare a una `/28`, ma una `/28` offre solo 14 host: non basta nemmeno per i soli dispositivi.
 
-**Spazio Rimasto (Future Espansioni):**
-L'intera progettazione ha consumato esattamente lo spazio del blocco `192.168.0.0/24`. 
-L'intera metà superiore della nostra rete nativa, ovvero il blocco **`192.168.1.0/24`**, rimane completamente intatta e disponibile per future aule, laboratori o servizi! Ricorda che la rete assegnata è una <code>/23</code>, il che significa che hai a disposizione ben due blocchi di classe C interi (la <code>0.x</code> e la <code>1.x</code>).
+**Spazio rimasto (future espansioni):**
+L'intera progettazione ha consumato esattamente lo spazio del blocco `192.168.0.0/24`.
+L'intera metà superiore della rete assegnata, ovvero il blocco **`192.168.1.0/24`**, rimane completamente intatta e disponibile per future aule, laboratori o servizi. Ricorda che la rete assegnata è una `/23`: hai a disposizione due blocchi `/24` interi (`192.168.0.x` e `192.168.1.x`).
+
+> **Riflessione da tecnico:** il piano rispetta i requisiti, ma il **Laboratorio ha un margine di un solo indirizzo**: basta aggiungere due PC per esaurire la sottorete. Anche il **Wi-Fi Ospiti** merita attenzione: gli ospiti entrano ed escono di continuo e ogni dispositivo occupa un lease DHCP per un certo tempo, quindi 100 utenti contemporanei possono richiedere molti più di 100 indirizzi nell'arco della giornata. Avendo libera un'intera `/24`, sarebbe ragionevole assegnare una rete più ampia a questi due reparti. "Minimo spreco" non significa "nessun margine".
 </details>

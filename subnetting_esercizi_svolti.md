@@ -41,6 +41,27 @@ Partendo da un indirizzo IPv4 qualunque andremo a rispondere alle domande:
 > **Nota sulle classi:** la suddivisione in Classi A, B, C, D, E (*classful*) è la nomenclatura storica di IPv4, abbandonata nel 1993 con l'introduzione del **CIDR** (*classless*). Oggi la lunghezza della parte di rete è indicata solo dal prefisso (`/8`, `/27`...), ma i nomi delle classi si usano ancora per indicare rapidamente gli intervalli: per questo compaiono negli esercizi come "classificazione storica".
 
 
+>### Ricorda: due metodi per calcolare Indirizzo di Rete e Broadcast
+>
+>**Metodo 1 — AND bit-a-bit (il metodo "ufficiale")**
+>
+>Si scrivono in binario IP e maschera e si esegue l'AND bit per bit. Per il broadcast si portano a `1` tutti i bit della parte host. È il metodo che usano davvero i dispositivi, ed è utile per capire *perché* funziona.
+>
+>**Metodo 2 — Il "salto" (*Magic Number*), il metodo veloce**
+>
+>1. Individua l'**ottetto interessante**: quello in cui la maschera non vale né `255` né `0`.
+>2. Calcola il **salto**: $256 - \text{(valore della maschera in quell'ottetto)}$.
+>3. Le sottoreti, in quell'ottetto, partono da tutti i **multipli del salto**: `0, salto, 2·salto, ...`
+>4. **Indirizzo di rete:** nell'ottetto interessante metti il multiplo del salto più grande che non supera il valore dell'IP; gli ottetti a sinistra restano uguali all'IP, quelli a destra diventano `0`.
+>5. **Broadcast:** nell'ottetto interessante metti *(multiplo successivo − 1)*; gli ottetti a destra diventano `255`.
+>
+>| Maschera nell'ottetto | 128 | 192 | 224 | 240 | 248 | 252 | 254 |
+>| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+>| **Salto** | 128 | 64 | 32 | 16 | 8 | 4 | 2 |
+>
+>Negli esercizi seguenti useremo l'AND come metodo principale e il salto come **verifica rapida**.
+
+
 ---
 
 ## Esercizio 1.1: Analisi di 192.168.10.133/27
@@ -79,6 +100,8 @@ L'indirizzo di broadcast si ottiene partendo dal valore binario dell'indirizzo d
 * **Calcolo ultimo ottetto:** Il blocco `10000000` diventa `10011111`. In decimale corrisponde a $128 + 16 + 8 + 4 + 2 + 1 = 159$.
 * **Risultato:** `192.168.10.159`
 
+> **Verifica con il salto:** maschera `224` nel quarto ottetto → salto $256 - 224 = 32$. Multipli: `0, 32, 64, 96, 128, 160...`. Il valore `133` cade tra `128` e `160`: rete `.128`, broadcast $160 - 1 = 159$. ✔
+
 ---
 
 ## Esercizio 1.2: Analisi di 172.16.43.100/22
@@ -115,6 +138,8 @@ Prendiamo l'indirizzo di rete e configuriamo a valore logico `1` tutti i 10 bit 
 * **Terzo ottetto binario:** `00101000` diventa `00101011` (decimale $43$).
 * **Quarto ottetto binario:** `00000000` diventa `11111111` (decimale $255$).
 * **Risultato:** `172.16.43.255`
+
+> **Verifica con il salto:** qui l'ottetto interessante è il **terzo** (maschera `252`) → salto $256 - 252 = 4$. Multipli: `..., 36, 40, 44, ...`. Il valore `43` cade tra `40` e `44`: rete `172.16.40.0` (quarto ottetto a `0`), broadcast `172.16.43.255` ($44 - 1 = 43$ nel terzo ottetto, `255` nel quarto). ✔
 
 ---
 
@@ -153,24 +178,29 @@ L'indirizzo di broadcast si calcola prendendo la forma binaria della rete e impo
 * **Calcolo ultimo ottetto:** Il blocco della rete `01000000` diventa `01111111`. Convertito in decimale corrisponde a: $64 + 32 + 16 + 8 + 4 + 2 + 1 = 127$.
 * **Risultato:** `200.1.1.127`
 
+> **Verifica con il salto:** maschera `192` nel quarto ottetto → salto $256 - 192 = 64$. Multipli: `0, 64, 128, 192`. Il valore `70` cade tra `64` e `128`: rete `.64`, broadcast $128 - 1 = 127$. ✔
+
 
 
 ---
 ---
 
-# Sezione 2: Subnetting 
+# Sezione 2: Subnetting
 
 In questa tipologia di esercizi viene fornito un indirizzo IP di partenza, la sua subnet mask originale (la rete madre) e una nuova subnet mask (più restrittiva).
 
-Per comodità possiamo individuare due parti: 
+Per comodità possiamo individuare un passo preliminare e due parti:
 
-* Analisi strutturale dei bit e conteggi (confronto tra le due maschere).  
+**Passo preliminare: individuare la rete madre.** Con la maschera **originale** si calcola la rete di partenza, cioè lo spazio di indirizzi che verrà suddiviso. Tutte le nuove sottoreti stanno *dentro* questa rete.
+
+**Analisi strutturale dei bit e conteggi** (confronto tra le due maschere):
 1. Numero di bit della sottorete (Subnet Bits)
 2. Numero di sottoreti che verranno create (Subnets Created)
 3. Numero di bit dell'host (Host Bits)
 4. Numero di host per sottorete (Hosts per Subnet)
 
-* Calcolo degli indirizzi specifici per la sottorete in cui si trova l'IP.  
+**Calcolo degli indirizzi specifici** per la sottorete in cui si trova l'IP:
+
 5. Indirizzo di rete dell'IP corrente (Network Address)
 6. Primo host nella rete dell'IP corrente (First Host)
 7. Indirizzo di broadcast nella rete (Broadcast Address)
@@ -179,10 +209,15 @@ Per comodità possiamo individuare due parti:
 
 ---
 
-## Esercizio 2.1: 
+## Esercizio 2.1: Subnetting di 172.16.68.230 (da /16 a /20)
+
 * **Indirizzo IP:** `172.16.68.230`
 * **Subnet Mask Originale:** `255.255.0.0` (Notazione CIDR: `/16`)
 * **Subnet Mask Nuova:** `255.255.240.0` (Notazione CIDR: `/20`)
+
+### Passo preliminare: la rete madre
+
+Con la maschera originale `/16` i primi due ottetti restano invariati e gli altri si azzerano: la rete madre è **`172.16.0.0/16`** (da `172.16.0.0` a `172.16.255.255`). È questo lo spazio che verrà suddiviso in sottoreti `/20`.
 
 ### Analisi dei Bit e Conteggi (confronto tra le due maschere)
 
@@ -193,19 +228,25 @@ Convertiamo le due maschere in binario per evidenziare il cambiamento struttural
 #### 1. Numero di bit della sottorete (Subnet Bits)
 È il numero di bit che sono stati "presi in prestito" dalla vecchia parte host per creare le nuove sottoreti.
 * **Formula:** `(Bit della Nuova Mask) - (Bit della Mask Originale)`
-* **Calcolo:** 20 bit - 16 bit = 4 bit
+* **Calcolo:** $20 - 16 = 4$ bit
 * **Risultato:** **4 bit** (i 4 bit "accesi" a `1` nel terzo ottetto della nuova maschera).
 
 #### 2. Numero di sottoreti che verranno create (Subnets Created)
 Il numero di combinazioni logiche ottenibili con i bit presi in prestito ($s$).
 * **Formula:** $2^s$ *(dove s = bit di sottorete)*
 * **Calcolo:** $2^4 = 16$
-* **Risultato:** **16 sottoreti totali** create all'interno dello spazio della rete principale.
+* **Risultato:** **16 sottoreti totali** create all'interno della rete madre.
+
+Con il salto ($256 - 240 = 16$ nel terzo ottetto) le 16 sottoreti sono:
+
+`172.16.0.0` · `172.16.16.0` · `172.16.32.0` · `172.16.48.0` · **`172.16.64.0`** · `172.16.80.0` · ... · `172.16.224.0` · `172.16.240.0`
+
+L'IP `172.16.68.230` cade nella **quinta** sottorete (`172.16.64.0/20`), evidenziata in grassetto.
 
 #### 3. Numero di bit dell'host (Host Bits)
 Il numero di bit rimasti impostati a `0` nella nuova subnet mask, dedicati all'indirizzamento dei dispositivi.
 * **Formula:** `(Bit Totali IPv4) - (Bit della Nuova Mask)`
-* **Calcolo:** 32 bit - 20 bit = 12 bit
+* **Calcolo:** $32 - 20 = 12$ bit
 * **Risultato:** **12 bit** (4 zeri rimasti nel terzo ottetto + 8 zeri del quarto ottetto).
 
 #### 4. Numero di host per sottorete (Hosts per Subnet)
@@ -214,13 +255,13 @@ Il numero di indirizzi IP reali che si possono assegnare ai dispositivi in ogni 
 * **Calcolo:** $2^{12} - 2 = 4096 - 2 = 4094$
 * **Risultato:** **4094 host utilizzabili** per ogni sottorete.
 
-
 ### Calcolo degli Indirizzi (Subnet Specifica)
 
 Utilizziamo l'IP di partenza (`172.16.68.230`) e la **Nuova Subnet Mask** (`255.255.240.0`) per isolare i parametri della sottorete specifica in cui risiede questo host.
 
 #### 5. Indirizzo di rete dell'IP corrente (Network Address)
-Si esegue l'operazione logica AND bit-a-bit. I primi due ottetti rimangono invariati (AND con 255) e l'ultimo si azzera (AND con 0). Sviluppiamo il calcolo binario sul terzo ottetto (68 AND 240):
+
+**Metodo 1 — AND bit-a-bit.** I primi due ottetti rimangono invariati (AND con 255) e l'ultimo si azzera (AND con 0). Sviluppiamo il calcolo binario sul terzo ottetto ($68 \text{ AND } 240$):
 
 ```text
 01000100  (Terzo ottetto IP: .68)
@@ -229,6 +270,11 @@ Si esegue l'operazione logica AND bit-a-bit. I primi due ottetti rimangono invar
 ------------------------------------------
 01000000  (Risultato in decimale: .64)
 ```
+
+**Metodo 2 — Salto.** Ottetto interessante: il terzo (maschera `240`) → salto $256 - 240 = 16$. Multipli: `..., 48, 64, 80, ...`. Il valore `68` cade tra `64` e `80`, quindi nel terzo ottetto mettiamo `64` e il quarto diventa `0`.
+
+Con questa maschera il salto è molto più rapido: non serve convertire nulla in binario.
+
 * **Risultato:** `172.16.64.0`
 
 #### 6. Primo host nella rete dell'IP corrente (First Host)
@@ -238,9 +284,13 @@ Si esegue l'operazione logica AND bit-a-bit. I primi due ottetti rimangono invar
 * **Risultato:** `172.16.64.1`
 
 #### 7. Indirizzo di broadcast nella rete (Broadcast Address)
-Si ottiene prendendo l'indirizzo di rete in binario e impostando a 1 tutti i 12 bit della parte host (gli ultimi 4 bit del terzo ottetto e tutti gli 8 del quarto).
+
+**Metodo 1 — Bit host a 1.** Si prende l'indirizzo di rete in binario e si impostano a 1 tutti i 12 bit della parte host (gli ultimi 4 bit del terzo ottetto e tutti gli 8 del quarto).
 * **Terzo ottetto binario:** `01000000` diventa `01001111` (decimale: $64 + 8 + 4 + 2 + 1 = 79$).
 * **Quarto ottetto binario:** `00000000` diventa `11111111` (decimale: $255$).
+
+**Metodo 2 — Salto.** La sottorete successiva inizia a `80`, quindi nel terzo ottetto mettiamo $80 - 1 = 79$ e il quarto diventa `255`.
+
 * **Risultato:** `172.16.79.255`
 
 #### 8. Ultimo host nella rete dell'IP corrente (Last Host)
@@ -251,35 +301,59 @@ Si ottiene prendendo l'indirizzo di rete in binario e impostando a 1 tutti i 12 
 
 ---
 
-## Esercizio 2.2:
+## Esercizio 2.2: Subnetting di 192.168.1.185 (da /26 a /28)
 
-* **Indirizzo IP Dato:** `192.168.1.185`
+* **Indirizzo IP:** `192.168.1.185`
 * **Subnet Mask Originale:** `255.255.255.192` (Notazione CIDR: `/26`)
 * **Subnet Mask Nuova:** `255.255.255.240` (Notazione CIDR: `/28`)
 
----
+### Passo preliminare: la rete madre
 
-#### Analisi dei Bit e Conteggi
-Convertiamo l'ultimo ottetto delle due maschere in binario per evidenziare la transizione strutturale (i primi tre ottetti restano invariati a `255`):
+Attenzione: qui la rete madre **non** è `192.168.1.0`. Applichiamo la maschera **originale** `/26` all'IP ($185 \text{ AND } 192$):
+
+```text
+10111001  (Ultimo ottetto IP: .185)
+   AND
+11000000  (Ultimo ottetto Mask Originale: .192)
+-----------------------------------------------
+10000000  (Risultato in decimale: .128)
+```
+
+La rete madre è **`192.168.1.128/26`** e va da `192.168.1.128` a `192.168.1.191` (verifica con il salto: $256 - 192 = 64$, il valore `185` cade tra `128` e `192`). Le nuove sottoreti `/28` vanno cercate **solo dentro questo intervallo**.
+
+### Analisi dei Bit e Conteggi (confronto tra le due maschere)
+
+Convertiamo le due maschere in binario per evidenziare il cambiamento strutturale (i primi tre ottetti restano invariati a `255`):
 * **Mask Originale (/26):** `11111111.11111111.11111111.11000000`
 * **Mask Nuova (/28):** `11111111.11111111.11111111.11110000`
 
 #### 1. Numero di bit della sottorete (Subnet Bits)
 Indica quanti bit sono stati "presi in prestito" dalla vecchia parte host della maschera `/26` per creare le nuove sottoreti con la maschera `/28`.
 * **Formula:** `(Bit della Nuova Mask) - (Bit della Mask Originale)`
-* **Calcolo:** $28 \text{ bit} - 26 \text{ bit} = 2 \text{ bit}$
+* **Calcolo:** $28 - 26 = 2$ bit
 * **Risultato:** **2 bit** (i due bit aggiuntivi accesi a `1` nel quarto ottetto).
 
 #### 2. Numero di sottoreti che verranno create (Subnets Created)
-Il numero di nuove sottoreti più piccole ricavate all'interno della subnet `/26` di partenza, combinando i 2 bit presi in prestito ($s$).
+Il numero di nuove sottoreti più piccole ricavate all'interno della rete madre `/26`, combinando i 2 bit presi in prestito ($s$).
 * **Formula:** $2^s$ *(dove s = bit di sottorete)*
 * **Calcolo:** $2^2 = 4$
-* **Risultato:** **4 sottoreti totali** create all'interno del segmento originale.
+* **Risultato:** **4 sottoreti totali** create all'interno della rete madre.
+
+Con il salto ($256 - 240 = 16$) le 4 sottoreti, partendo dall'inizio della rete madre (`.128`), sono:
+
+| Sottorete | Indirizzo di Rete | Intervallo |
+| :---: | :--- | :--- |
+| 1 | `192.168.1.128/28` | `.128 – .143` |
+| 2 | `192.168.1.144/28` | `.144 – .159` |
+| 3 | `192.168.1.160/28` | `.160 – .175` |
+| **4** | **`192.168.1.176/28`** | **`.176 – .191`** ← contiene `.185` |
+
+> **Errore tipico:** elencare le sottoreti partendo da `192.168.1.0` (`.0, .16, .32...`). Quelle sottoreti esistono, ma **non** appartengono alla rete madre `192.168.1.128/26`: i 2 bit presi in prestito generano solo 4 sottoreti, tutte comprese tra `.128` e `.191`.
 
 #### 3. Numero di bit dell'host (Host Bits)
 Il numero di bit rimasti impostati a `0` nella nuova maschera `/28`, responsabili dell'assegnazione degli IP ai dispositivi.
 * **Formula:** `(Bit Totali IPv4) - (Bit della Nuova Mask)`
-* **Calcolo:** $32 \text{ bit} - 28 \text{ bit} = 4 \text{ bit}$
+* **Calcolo:** $32 - 28 = 4$ bit
 * **Risultato:** **4 bit** (gli ultimi 4 zeri rimasti nel quarto ottetto).
 
 #### 4. Numero di host per sottorete (Hosts per Subnet)
@@ -288,9 +362,8 @@ Il numero di indirizzi IP reali e assegnabili alle interfacce dei dispositivi in
 * **Calcolo:** $2^4 - 2 = 16 - 2 = 14$
 * **Risultato:** **14 host utilizzabili** per ciascuna sottorete (escludendo l'ID di rete e il broadcast).
 
----
+### Calcolo degli Indirizzi (Subnet Specifica)
 
-#### Calcolo degli Indirizzi (Subnet Specifica)
 Utilizziamo l'IP di partenza (`192.168.1.185`) e la **Nuova Subnet Mask** (`255.255.255.240`) per isolare i parametri della sottorete specifica in cui risiede questo host.
 
 #### 5. Indirizzo di rete dell'IP corrente (Network Address)
@@ -303,7 +376,7 @@ Si esegue l'operazione logica AND bit-a-bit tra il quarto ottetto dell'IP ($185$
 ------------------------------------------
 10110000  (Risultato in decimale: 128 + 32 + 16 = 176)
 ```
-* **Risultato:** `192.168.1.176`
+* **Risultato:** `192.168.1.176` (coincide con la sottorete 4 della tabella).
 
 #### 6. Primo host nella rete dell'IP corrente (First Host)
 È il primo indirizzo IP utilizzabile per un host, ottenuto incrementando di 1 l'indirizzo di rete.
@@ -314,7 +387,10 @@ Si esegue l'operazione logica AND bit-a-bit tra il quarto ottetto dell'IP ($185$
 #### 7. Indirizzo di broadcast nella rete (Broadcast Address)
 Si calcola mantenendo intatta la parte di rete nel quarto ottetto (`1011`) e impostando a `1` tutti i restanti 4 bit dedicati all'host (`1111`).
 * **Calcolo ultimo ottetto binario:** `10110000` diventa `10111111`. In decimale: $176 + 15 = 191$.
+* **Verifica con il salto:** la sottorete successiva inizierebbe a $176 + 16 = 192$, quindi il broadcast è $192 - 1 = 191$.
 * **Risultato:** `192.168.1.191`
+
+> Nota: `.191` è anche il broadcast della rete madre `/26`. Non è un caso: l'ultima sottorete termina sempre dove termina la rete madre.
 
 #### 8. Ultimo host nella rete dell'IP corrente (Last Host)
 È l'ultimo indirizzo IP valido assegnabile a un dispositivo, immediatamente precedente al broadcast.
@@ -365,7 +441,7 @@ Si calcola mantenendo intatta la parte di rete nel quarto ottetto (`1011`) e imp
 > * **IP B:** `192.168.1.178`  
 > * **Subnet Mask:** `255.255.255.240` (`/28`)
 > 
-> **Calcolo veloce (Metodo del "Salto" o *Magic Number*):**
+> **Calcolo veloce (Metodo del "Salto" o *Magic Number*, vedi il riquadro all'inizio della Sezione 1):**
 > 1. Prendi l'ottetto interessato della maschera: `240`.
 > 2. Trova la dimensione del blocco (Salto): $256 - 240 = 16$.
 > 3. Le sottoreti viaggiano di 16 in 16: `0, 16, 32, ..., 160, 176, 192, 208...`

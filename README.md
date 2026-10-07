@@ -18,6 +18,7 @@ In ogni esercizio applichiamo un pattern standard a step che ti aiuterà a non p
 5. Indirizzo Broadcast
 
 ### **Subnetting**:
+* Passo preliminare: individuare la rete madre con la maschera originale.  
 * Analisi strutturale dei bit e conteggi (confronto tra le due maschere).  
 1. Numero di bit della sottorete (Subnet Bits)
 2. Numero di sottoreti che verranno create (Subnets Created)
