@@ -147,7 +147,7 @@ Prendiamo l'indirizzo di rete e configuriamo a valore logico `1` tutti i 10 bit 
 
 ### 1. Identificare lo Scopo
 * **Classificazione (storica):** Classe C (maschera nativa `/24`, oggi sostituita dal prefisso CIDR indicato).
-* **Ambito di Rete:** Pubblico. Non rientrando in alcuna categoria di indirizzi privati o speciali, questo IP è registrato in modo univoco a livello globale. È direttamente raggiungibile e instradabile sulla rete Internet globale.
+* **Ambito di Rete:** Pubblico. Non rientrando in alcuna categoria di indirizzi privati o speciali, appartiene allo spazio di indirizzi pubblici. È direttamente raggiungibile e instradabile sulla rete Internet globale.
 
 
 ### 2. Identificare la Subnet Mask
