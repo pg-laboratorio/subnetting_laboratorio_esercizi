@@ -31,4 +31,11 @@ In ogni esercizio applichiamo un pattern standard a step che ti aiuterà a non p
 8. Ultimo host nella rete dell'IP corrente (Last Host)
 
 ## Consiglio:
-**Tabella delle potenze di 2:** Tieni sempre a mente (o scrivi su un foglio) le potenze di 2 fino a $2^8$ (128, 64, 32, 16, 8, 4, 2, 1).
+**Tabella delle potenze di 2:** Tieni sempre a mente (o scrivi su un foglio) le potenze di 2 fino a $2^8$ (256, 128, 64, 32, 16, 8, 4, 2, 1).
+
+**Tabella dei valori di maschera:** sono gli unici valori che un ottetto della subnet mask può assumere. Il **salto** ($256 - \text{valore}$) indica di quanto avanzano le sottoreti in quell'ottetto.
+
+| Bit a 1 nell'ottetto | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 |
+| :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Valore** | 128 | 192 | 224 | 240 | 248 | 252 | 254 | 255 |
+| **Salto** | 128 | 64 | 32 | 16 | 8 | 4 | 2 | 1 |
