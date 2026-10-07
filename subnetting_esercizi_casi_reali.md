@@ -261,7 +261,7 @@ L'ultimo ottetto della maschera è `240` (`11110000` in binario). Calcoliamo la 
 
 La tua azienda ha appena aperto una nuova sede. Devi collegare in modo diretto ed esclusivo il router della sede principale (**Router-A**) al router della nuova filiale (**Router-B**) tramite un link dedicato in fibra. 
 
-L'ISP ti ha assegnato il blocco di rete `10.255.255.0/24` da utilizzare per i collegamenti dell'infrastruttura. L'obiettivo è sprecare il minor numero possibile di indirizzi IP per questo singolo collegamento tra i due router.
+l'amministratore ha riservato il blocco `10.255.255.0/24` da utilizzare per i collegamenti dell'infrastruttura. L'obiettivo è sprecare il minor numero possibile di indirizzi IP per questo singolo collegamento tra i due router.
 
 ### Domande
 
